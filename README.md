@@ -1,4 +1,4 @@
-# EventVers
+# EventVerse
 
 EventVerse is a real-time event coordination platform built to simplify the planning and execution of events for the **IIITA community**. Instead of relying on multiple communication platforms and spreadsheets, EventVerse provides one centralized workspace where organizers, team leads, and volunteers can coordinate efficiently.
 
