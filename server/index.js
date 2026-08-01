@@ -9,6 +9,10 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
+import NodeCache from 'node-cache';
+
+// Initialize a 15-second TTL cache for dashboard queries
+const myCache = new NodeCache({ stdTTL: 15, checkperiod: 30 });
 
 // ── App setup ──────────────────────────────────────────────────────────────────
 const app = express();
@@ -617,11 +621,21 @@ app.get('/api/events/:eventId/dashboard', auth, eventAccess, async (req, res) =>
     const { event, eventRole: role, teamName } = req;
     const today = new Date().toISOString().split('T')[0];
 
-    const [allSubEvents, announcements, totalMessages] = await Promise.all([
-      SubEvent.find({ eventId: event._id }).sort({ date: 1, startTime: 1 }),
-      Announcement.find({ eventId: event._id }).sort({ createdAt: -1 }).limit(3),
-      Message.countDocuments({ eventId: event._id }),
-    ]);
+    const cacheKey = `dashboard_data_${event._id}`;
+    let dashboardData = myCache.get(cacheKey);
+
+    if (!dashboardData) {
+      // Cache miss: query the database
+      const [allSubEvents, announcements, totalMessages] = await Promise.all([
+        SubEvent.find({ eventId: event._id }).sort({ date: 1, startTime: 1 }),
+        Announcement.find({ eventId: event._id }).sort({ createdAt: -1 }).limit(3),
+        Message.countDocuments({ eventId: event._id }),
+      ]);
+      dashboardData = { allSubEvents, announcements, totalMessages };
+      myCache.set(cacheKey, dashboardData); // Cached for 15 seconds
+    }
+
+    const { allSubEvents, announcements, totalMessages } = dashboardData;
 
     let upcoming = allSubEvents.filter(s => !s.date || s.date >= today);
     if (role === 'volunteer' && teamName) {

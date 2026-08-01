@@ -12,22 +12,22 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
+    "bcryptjs": "latest",
+    "cloudinary": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "helmet": "latest",
+    "jsonwebtoken": "latest",
+    "lucide-react": "latest",
+    "mongoose": "latest",
+    "multer": "latest",
+    "node-cache": "^5.1.2",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest",
-    "lucide-react": "latest",
-    "socket.io-client": "latest",
-    "express": "latest",
-    "cors": "latest",
-    "bcryptjs": "latest",
-    "dotenv": "latest",
-    "jsonwebtoken": "latest",
-    "mongoose": "latest",
     "socket.io": "latest",
-    "helmet": "latest",
-    "cloudinary": "latest",
-    "multer": "latest"
-  },
-  "devDependencies": {}
+    "socket.io-client": "latest",
+    "vite": "latest"
+  }
 }
