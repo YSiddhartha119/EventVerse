@@ -10,6 +10,11 @@ import { Server } from 'socket.io';
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 import NodeCache from 'node-cache';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Initialize a 15-second TTL cache for dashboard queries
 const myCache = new NodeCache({ stdTTL: 15, checkperiod: 30 });
@@ -677,6 +682,13 @@ app.get('/api/events/:eventId/dashboard', auth, eventAccess, async (req, res) =>
 io.on('connection', socket => {
   socket.on('event:join',  id => socket.join(id));
   socket.on('event:leave', id => socket.leave(id));
+});
+
+// ── Serve React Frontend (Monolith) ────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, '../dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
 // ── Boot ───────────────────────────────────────────────────────────────────────
