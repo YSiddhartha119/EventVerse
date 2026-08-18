@@ -24,7 +24,7 @@ const TeamChannelPage = ({ event }) => {
     
     const handleNewMessage = (msg) => {
       if (msg.teamName === event.teamName) {
-        setMessages(prev => [...prev, msg]);
+        setMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
       }
     };
     
@@ -33,10 +33,14 @@ const TeamChannelPage = ({ event }) => {
   }, [event.id, event.teamName]);
 
   const handleSend = async (text) => {
-    await api(`/events/${event.id}/messages`, {
+    const res = await api(`/events/${event.id}/messages`, {
       method: 'POST',
       body: JSON.stringify({ text, teamName: event.teamName })
     });
+    if (res.ok) {
+      const newMsg = await res.json();
+      setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg]);
+    }
   };
 
   if (loading) return <Loading />;

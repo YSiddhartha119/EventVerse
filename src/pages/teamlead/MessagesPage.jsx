@@ -30,9 +30,9 @@ const MessagesPage = ({ event }) => {
     
     const handleNewMessage = (msg) => {
       if (!msg.teamName) {
-        setOrgMessages(prev => [...prev, msg]);
+        setOrgMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
       } else if (msg.teamName === event.teamName) {
-        setTeamMessages(prev => [...prev, msg]);
+        setTeamMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
       }
     };
     
@@ -42,10 +42,18 @@ const MessagesPage = ({ event }) => {
 
   const handleSend = async (text) => {
     const teamName = activeTab === 'org' ? null : event.teamName;
-    await api(`/events/${event.id}/messages`, {
+    const res = await api(`/events/${event.id}/messages`, {
       method: 'POST',
       body: JSON.stringify({ text, teamName })
     });
+    if (res.ok) {
+      const newMsg = await res.json();
+      if (activeTab === 'org') {
+        setOrgMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg]);
+      } else {
+        setTeamMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg]);
+      }
+    }
   };
 
   if (loading) return <Loading />;
