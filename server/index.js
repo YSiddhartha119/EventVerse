@@ -356,11 +356,8 @@ app.post('/api/events/:eventId/banner', auth, eventAccess, requireOrganizer, asy
     const b64    = Buffer.from(req.file.buffer).toString('base64');
     const dataUrl = `data:${req.file.mimetype};base64,${b64}`;
 
-    const result = await cloudinary.uploader.upload(dataUrl, {
-      public_id:     `eventverse_banner_${sid(req.event)}`,
-      overwrite:     true,
-      resource_type: 'image',
-    });
+    // Bare minimum upload — no folder, no public_id, no transforms
+    const result = await cloudinary.uploader.upload(dataUrl);
 
     const event = await Event.findByIdAndUpdate(
       req.event._id,
@@ -369,13 +366,7 @@ app.post('/api/events/:eventId/banner', auth, eventAccess, requireOrganizer, asy
     );
     res.json({ bannerUrl: event.bannerUrl });
   } catch (err) {
-    // Log full Cloudinary error so we can diagnose it in Render logs
-    console.error('Banner upload error:', {
-      message:   err.message,
-      http_code: err.http_code,
-      name:      err.name,
-      full:      JSON.stringify(err),
-    });
+    console.error('Banner upload error full:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
     res.status(500).json({ error: err.message, http_code: err.http_code ?? null });
   }
 });
