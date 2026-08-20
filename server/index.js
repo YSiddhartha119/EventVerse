@@ -357,11 +357,10 @@ app.post('/api/events/:eventId/banner', auth, eventAccess, requireOrganizer, asy
     const dataUrl = `data:${req.file.mimetype};base64,${b64}`;
 
     const result = await cloudinary.uploader.upload(dataUrl, {
-      folder:     'eventverse/banners',
-      public_id:  `banner-${sid(req.event)}`,
-      overwrite:  true,
-      // Resize on upload: limit longest dimension to 1400 px, auto-select quality
-      width: 1400, crop: 'limit', quality: 'auto', fetch_format: 'auto',
+      folder:        'eventverse/banners',
+      public_id:     `banner-${sid(req.event)}`,
+      overwrite:     true,
+      resource_type: 'image',
     });
 
     const event = await Event.findByIdAndUpdate(
