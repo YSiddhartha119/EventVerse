@@ -356,8 +356,12 @@ app.post('/api/events/:eventId/banner', auth, eventAccess, requireOrganizer, asy
     const b64    = Buffer.from(req.file.buffer).toString('base64');
     const dataUrl = `data:${req.file.mimetype};base64,${b64}`;
 
-    // Bare minimum upload — no folder, no public_id, no transforms
-    const result = await cloudinary.uploader.upload(dataUrl);
+    const result = await cloudinary.uploader.upload(dataUrl, {
+      folder:        'EventVerse',
+      public_id:     `banner_${sid(req.event)}`,
+      overwrite:     true,
+      resource_type: 'image',
+    });
 
     const event = await Event.findByIdAndUpdate(
       req.event._id,
